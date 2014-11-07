@@ -1,0 +1,101 @@
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+using namespace std;
+
+struct UndirectedGraphNode {
+	int label;
+	vector<UndirectedGraphNode *> neighbors;
+	UndirectedGraphNode(int x) : label(x) {};
+};
+
+class Solution {
+public:
+	UndirectedGraphNode *cloneGraph(UndirectedGraphNode *node) {
+		// This solution still cannot ac, output limit exceed
+		if (node == NULL) return NULL;
+		unordered_map<int, UndirectedGraphNode *> visited;
+		UndirectedGraphNode *head = new UndirectedGraphNode(node->label);
+		dfs(node, head, visited);
+		return head;
+	}
+	void dfs(UndirectedGraphNode *node, UndirectedGraphNode *copy,
+				unordered_map<int, UndirectedGraphNode *> &visited) {
+		if (visited.find(node->label) == visited.end()) {
+			visited[node->label] = copy;	
+			vector<UndirectedGraphNode *> vec = node->neighbors;
+			for (int i=0; i<vec.size(); i++) {
+				UndirectedGraphNode *n = new UndirectedGraphNode(vec[i]->label);
+				copy->neighbors.push_back(n); 
+				//cout << n->label << ": " << vec[i]->label << endl;  
+				dfs(vec[i], n, visited);
+			}
+		}
+	}
+};
+/*
+class Solution {
+public:
+	UndirectedGraphNode *cloneGraph(UndirectedGraphNode *node) {
+		if (node == NULL) return node;
+		unordered_map<int, UndirectedGraphNode *> visited;
+		return dfs(node, visited);
+	}
+	UndirectedGraphNode *dfs(UndirectedGraphNode *node, unordered_map<int, 
+								UndirectedGraphNode *> &visited) {
+		UndirectedGraphNode *copy = new UndirectedGraphNode(node->label);
+		if (visited.find(node->label) != visited.end()) 
+			return visited[node->label];
+			
+		visited[node->label] = copy;	
+		vector<UndirectedGraphNode *> vec = node->neighbors;
+		for (int i=0; i<vec.size(); i++) {
+			copy->neighbors.push_back(dfs(vec[i], visited)); 
+		}
+		return copy;
+	}
+};
+*/
+	vector<int> visited;
+	bool is_visited(UndirectedGraphNode *node) {
+		for (int i=0; i<visited.size(); i++) {
+			if (visited[i] == node->label) return true;
+		}
+		return false;
+	}
+	void dfs(UndirectedGraphNode *node) {
+		if ( !is_visited(node) ) {
+			visited.push_back(node->label);	
+			//cout << node->label << endl;
+			vector<UndirectedGraphNode *> vec = node->neighbors;
+			for (int i=0; i<vec.size(); i++) {
+				cout << node->label << "->neighbors: " << vec[i]->label << endl;  
+				dfs(vec[i]);
+			}
+		}	
+	}
+
+	
+
+int main()
+{
+	UndirectedGraphNode *node0 = new UndirectedGraphNode(0);
+	UndirectedGraphNode *node1 = new UndirectedGraphNode(1);
+	UndirectedGraphNode *node2 = new UndirectedGraphNode(2);
+	
+	node0->neighbors.push_back(node1); 
+	node0->neighbors.push_back(node2); 
+
+	node1->neighbors.push_back(node0);
+	node1->neighbors.push_back(node2);
+
+	node2->neighbors.push_back(node0);
+	node2->neighbors.push_back(node1);
+
+	Solution s;
+	UndirectedGraphNode *n = s.cloneGraph(node0);
+	//cout << n->neighbors[0]->label << endl;
+	//cout << n->neighbors[1]->label << endl;
+	//cout << n->neighbors.size() << endl;
+	dfs(n);
+}
